@@ -1,7 +1,8 @@
 package ru.babobka.nodeslaveserver.runnable;
 
 import ru.babobka.nodeslaveserver.builder.BadResponseBuilder;
-import ru.babobka.nodeslaveserver.server.ServerContext;
+import ru.babobka.nodeslaveserver.model.TasksStorage;
+import ru.babobka.nodeslaveserver.server.SlaveServerContext;
 import ru.babobka.nodeslaveserver.task.TaskRunner;
 import ru.babobka.nodeslaveserver.util.StreamUtil;
 import ru.babobka.nodeserials.NodeRequest;
@@ -23,35 +24,35 @@ public class RequestHandlerRunnable implements Runnable {
 
 	private final SubTask subTask;
 
-	public RequestHandlerRunnable(Socket socket, NodeRequest request, SubTask subTask) {
+	private final TasksStorage tasksStorage;
+
+	public RequestHandlerRunnable(Socket socket, TasksStorage tasksStorage, NodeRequest request, SubTask subTask) {
 		this.socket = socket;
 		this.request = request;
 		this.subTask = subTask;
+		this.tasksStorage = tasksStorage;
 	}
 
 	@Override
 	public void run() {
 		try {
-			NodeResponse response = TaskRunner.runTask(request, subTask);
+			NodeResponse response = TaskRunner.runTask(tasksStorage, request, subTask);
 			if (!response.isStopped()) {
-				synchronized (socket) {
-					StreamUtil.sendObject(response, socket);
-				}
-				ServerContext.getInstance().getLogger().log(response.toString());
-				ServerContext.getInstance().getLogger().log("Response was sent");
+				StreamUtil.sendObject(response, socket);
+				SlaveServerContext.getInstance().getLogger().log(response.toString());
+				SlaveServerContext.getInstance().getLogger().log("Response was sent");
 			}
 		} catch (NullPointerException e) {
-			synchronized (socket) {
-				try {
-					StreamUtil.sendObject(BadResponseBuilder.getInstance(request.getTaskId(), request.getRequestId(),
-							request.getTaskName()), socket);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+			try {
+				StreamUtil.sendObject(BadResponseBuilder.getInstance(request.getTaskId(), request.getRequestId(),
+						request.getTaskName()), socket);
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
+
 		} catch (IOException e) {
-			ServerContext.getInstance().getLogger().log(e);
-			ServerContext.getInstance().getLogger().log(Level.SEVERE, "Response wasn't sent");
+			SlaveServerContext.getInstance().getLogger().log(e);
+			SlaveServerContext.getInstance().getLogger().log(Level.SEVERE, "Response wasn't sent");
 		}
 	}
 }

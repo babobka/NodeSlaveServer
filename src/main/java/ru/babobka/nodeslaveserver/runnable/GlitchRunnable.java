@@ -2,7 +2,7 @@ package ru.babobka.nodeslaveserver.runnable;
 
 import java.io.IOException;
 import java.net.Socket;
-import ru.babobka.nodeslaveserver.server.ServerContext;
+import ru.babobka.nodeslaveserver.server.SlaveServerContext;
 
 public class GlitchRunnable implements Runnable {
 
@@ -17,18 +17,18 @@ public class GlitchRunnable implements Runnable {
 	@Override
 	public void run() {
 		while (!Thread.currentThread().isInterrupted()) {
-			int timeToWaitSec = (int) (Math.random() * 300);
-			ServerContext.getInstance().getLogger().log("Seconds to glitch " + timeToWaitSec);
+			int timeToWaitSec = (int) (Math.random() * 60);
+			SlaveServerContext.getInstance().getLogger().log("Seconds to glitch " + timeToWaitSec);
 			try {
 				Thread.sleep(timeToWaitSec * 1000L);
 				try {
-					ServerContext.getInstance().getLogger().log("Closing socket in GlitchRunnable");
+					SlaveServerContext.getInstance().getLogger().log("Closing socket in GlitchRunnable");
 					socket.close();
 				} catch (IOException e) {
-					ServerContext.getInstance().getLogger().log(e);
+					SlaveServerContext.getInstance().getLogger().log(e);
 				}
 			} catch (InterruptedException e) {
-				ServerContext.getInstance().getLogger().log(e);
+				SlaveServerContext.getInstance().getLogger().log(e);
 				Thread.currentThread().interrupt();
 			}
 		}

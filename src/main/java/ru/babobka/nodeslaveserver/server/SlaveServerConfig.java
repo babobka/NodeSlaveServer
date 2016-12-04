@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 import ru.babobka.nodeslaveserver.exception.ServerConfigurationException;
 
-public class ServerConfig {
+public class SlaveServerConfig {
 
 	private final int requestTimeoutMillis;
 
@@ -14,13 +14,11 @@ public class ServerConfig {
 
 	private final int authTimeoutMillis;
 
-	private final boolean glitchy;
-
 	private final String loggerFolder;
 
 	private final String tasksFolder;
 
-	public ServerConfig(int requestTimeoutMillis, int reconnectionTimeoutMillis, int authTimeoutMillis, boolean glitchy,
+	public SlaveServerConfig(int requestTimeoutMillis, int reconnectionTimeoutMillis, int authTimeoutMillis,
 			String loggerFolder, String tasksFolder) throws ServerConfigurationException {
 
 		if (requestTimeoutMillis <= 0) {
@@ -56,13 +54,13 @@ public class ServerConfig {
 		}
 		this.tasksFolder = tasksFolder;
 
-		this.glitchy = glitchy;
+
 
 	}
 
-	public ServerConfig(JSONObject jsonObject) throws ServerConfigurationException {
+	public SlaveServerConfig(JSONObject jsonObject) throws ServerConfigurationException {
 		this(jsonObject.getInt("requestTimeoutMillis"), jsonObject.getInt("reconnectionTimeoutMillis"),
-				jsonObject.getInt("authTimeoutMillis"), jsonObject.getBoolean("glitchy"),
+				jsonObject.getInt("authTimeoutMillis"),
 				jsonObject.getString("loggerFolder"), jsonObject.getString("tasksFolder"));
 
 	}
@@ -79,9 +77,7 @@ public class ServerConfig {
 		return authTimeoutMillis;
 	}
 
-	public boolean isGlitchy() {
-		return glitchy;
-	}
+
 
 	public String getLoggerFolder() {
 		return loggerFolder;
@@ -91,19 +87,15 @@ public class ServerConfig {
 		return tasksFolder;
 	}
 
-	
-	
 	@Override
 	public String toString() {
-		return "ServerConfig [requestTimeoutMillis=" + requestTimeoutMillis + ", reconnectionTimeoutMillis="
-				+ reconnectionTimeoutMillis + ", authTimeoutMillis=" + authTimeoutMillis + ", glitchy=" + glitchy
-				+ ", loggerFolder=" + loggerFolder + ", tasksFolder=" + tasksFolder + "]";
+		return "SlaveServerConfig [requestTimeoutMillis=" + requestTimeoutMillis + ", reconnectionTimeoutMillis="
+				+ reconnectionTimeoutMillis + ", authTimeoutMillis=" + authTimeoutMillis + ", loggerFolder="
+				+ loggerFolder + ", tasksFolder=" + tasksFolder + "]";
 	}
 
-	public static void main(String[] args) {
-		ServerConfig serverConfig = new ServerConfig(45000, 2000, 2000, false, "/Users/bbk/Documents/nodes/log",
-				"/Users/bbk/Documents/nodes/tasks");
-		System.out.println(new JSONObject(serverConfig));
-	}
+
+
+
 
 }

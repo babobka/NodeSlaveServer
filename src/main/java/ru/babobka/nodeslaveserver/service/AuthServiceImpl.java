@@ -1,7 +1,7 @@
 package ru.babobka.nodeslaveserver.service;
 
 import ru.babobka.nodeslaveserver.builder.AuthResponseBuilder;
-import ru.babobka.nodeslaveserver.server.ServerContext;
+import ru.babobka.nodeslaveserver.server.SlaveServerContext;
 import ru.babobka.nodeslaveserver.util.StreamUtil;
 import ru.babobka.nodeserials.PublicKey;
 import ru.babobka.nodeserials.RSA;
@@ -36,13 +36,13 @@ public class AuthServiceImpl implements AuthService {
 	public boolean auth(Socket socket, String login, String password) {
 		
 		try {
-			socket.setSoTimeout(ServerContext.getInstance().getConfig().getAuthTimeoutMillis());
+			socket.setSoTimeout(SlaveServerContext.getInstance().getConfig().getAuthTimeoutMillis());
 			PublicKey publicKey = (PublicKey) StreamUtil.receiveObject(socket);
 			StreamUtil.sendObject(AuthResponseBuilder.build(new RSA(null, publicKey), login, password), socket);
 			
 			return (Boolean) StreamUtil.receiveObject(socket);
 		} catch (Exception e) {
-			ServerContext.getInstance().getLogger().log(e);
+			SlaveServerContext.getInstance().getLogger().log(e);
 			return false;
 		} 
 	}

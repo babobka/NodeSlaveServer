@@ -1,6 +1,6 @@
 package ru.babobka.nodeslaveserver.task;
 
-import ru.babobka.nodeslaveserver.model.TaskMap;
+import ru.babobka.nodeslaveserver.model.TasksStorage;
 import ru.babobka.nodeslaveserver.model.Timer;
 import ru.babobka.nodeserials.NodeRequest;
 import ru.babobka.nodeserials.NodeResponse;
@@ -14,7 +14,7 @@ import ru.babobka.subtask.model.ValidationResult;
 public interface TaskRunner {
 
 
-	public static NodeResponse runTask(NodeRequest request, SubTask subTask) {
+	public static NodeResponse runTask(TasksStorage tasksStorage,NodeRequest request, SubTask subTask) {
 		try {			
 			ValidationResult validationResult = subTask
 					.validateRequest(request);
@@ -41,7 +41,7 @@ public interface TaskRunner {
 			}
 
 		} finally {
-			TaskMap.removeRequest(request);
+			tasksStorage.removeRequest(request);
 		}
 	}
 

@@ -33,21 +33,14 @@ public class StreamUtil {
 
 	}
 
-	public static String readFile(InputStream is) {
-		Scanner scanner = null;
-		try {
-			scanner = new Scanner(is).useDelimiter("\\A");
-			return scanner.hasNext() ? scanner.next() : "";
+	public static String getLocalResourcePath(Class<?> clazz, String resourceName) {
+		return clazz.getClassLoader().getResource(resourceName).getPath();
+	}
 
-		} finally {
-			if (scanner != null) {
-				scanner.close();
-			}
-			try {
-				is.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	public static String readFile(InputStream is) {
+
+		try (Scanner scanner = new Scanner(is); Scanner delimitedScanner = scanner.useDelimiter("\\A");) {
+			return scanner.hasNext() ? scanner.next() : "";
 		}
 	}
 
@@ -87,23 +80,13 @@ public class StreamUtil {
 	public static String readFile(String filename) {
 		String content = null;
 		File file = new File(filename);
-		FileReader reader = null;
-		try {
-			reader = new FileReader(file);
+		try (FileReader reader = new FileReader(file);) {
 			char[] chars = new char[(int) file.length()];
 			reader.read(chars);
 			content = new String(chars);
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 		return content;
 	}
@@ -119,75 +102,46 @@ public class StreamUtil {
 	}
 
 	public static void sendObject(Object object, Socket socket) throws IOException {
-		byte[] message = objectToByteArray(object);
-		DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-		dOut.writeInt(message.length);
-		dOut.write(message);
-		socket.getOutputStream().flush();
+		synchronized (socket) {
+			byte[] message = objectToByteArray(object);
+			DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+			dOut.writeInt(message.length); // write length of the message
+			dOut.write(message);
+			socket.getOutputStream().flush();
+		}
 	}
 
 	public static Object receiveObject(Socket socket) throws IOException {
+
 		DataInputStream dIn = new DataInputStream(socket.getInputStream());
 		int length = dIn.readInt();
 		if (length > 0) {
 			byte[] message = new byte[length];
 			dIn.readFully(message, 0, message.length);
-			try {
-				return byteArrayToObject(message);
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-				throw new IOException(e);
-			}
+			return byteArrayToObject(message);
 		}
 		return null;
+
 	}
 
-	private static Object byteArrayToObject(byte[] byteArray) throws IOException, ClassNotFoundException {
-		ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);
-		ObjectInput in = null;
-		try {
-			in = new ObjectInputStream(bis);
+	private static Object byteArrayToObject(byte[] byteArray) throws IOException {
+		try (ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);
+				ObjectInput in = new ObjectInputStream(bis);) {
 			return in.readObject();
-		} finally {
-			try {
-				bis.close();
-			} catch (IOException ex) {
-				// ignore close exception
-			}
-			try {
-				if (in != null) {
-					in.close();
-				}
-			} catch (IOException ex) {
-				// ignore close exception
-			}
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e);
 		}
 	}
 
 	private static byte[] objectToByteArray(Object object) throws IOException {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ObjectOutput out = null;
-		try {
-			out = new ObjectOutputStream(bos);
+
+		try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); ObjectOutput out = new ObjectOutputStream(bos);) {
 			out.writeObject(object);
 			return bos.toByteArray();
-		} finally {
-			try {
-				if (out != null) {
-					out.close();
-				}
-			} catch (IOException ex) {
-				// ignore close exception
-			}
-			try {
-				bos.close();
-			} catch (IOException ex) {
-				// ignore close exception
-			}
 		}
 	}
 
-	public static LinkedList<String> getFileListFromFolder(String folderPath) {
+	public static List<String> getFileListFromFolder(String folderPath) {
 
 		File folder = new File(folderPath);
 		File[] listOfFiles = folder.listFiles();
@@ -205,6 +159,7 @@ public class StreamUtil {
 	public static Class<?> getTaskClassFromJar(String jarFilePath) throws ClassNotFoundException {
 		String className = "subtask.Task";
 		JarClassLoader jarLoader = new JarClassLoader(jarFilePath);
+
 		return jarLoader.loadClass(className, true);
 
 	}

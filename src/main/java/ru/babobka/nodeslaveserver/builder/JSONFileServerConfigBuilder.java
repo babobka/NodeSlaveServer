@@ -1,31 +1,18 @@
 package ru.babobka.nodeslaveserver.builder;
 
-import java.io.File;
-
 import org.json.JSONObject;
 
 import ru.babobka.nodeslaveserver.exception.ServerConfigurationException;
-import ru.babobka.nodeslaveserver.server.ServerConfig;
+import ru.babobka.nodeslaveserver.server.SlaveServerConfig;
 import ru.babobka.nodeslaveserver.util.StreamUtil;
 
-public class JSONFileServerConfigBuilder {
+public interface JSONFileServerConfigBuilder {
 
-	private static final String CONFIG = "slave_config.json";
-
-	private JSONFileServerConfigBuilder() {
-
-	}
-
-	public static ServerConfig build(boolean production) {
+	public static SlaveServerConfig build(String configFolder) {
 
 		try {
-			if (production) {
-				return new ServerConfig(
-						new JSONObject(StreamUtil.readFile(StreamUtil.getRunningFolder() + File.separator + CONFIG)));
-			} else {
-				return new ServerConfig(new JSONObject(StreamUtil
-						.readFile(JSONFileServerConfigBuilder.class.getClassLoader().getResourceAsStream(CONFIG))));
-			}
+
+			return new SlaveServerConfig(new JSONObject(StreamUtil.readFile(configFolder)));
 
 		} catch (Exception e) {
 			throw new ServerConfigurationException("Can not build server configuration", e);

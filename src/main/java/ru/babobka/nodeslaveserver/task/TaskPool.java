@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import ru.babobka.nodeslaveserver.exception.CanNotInitTaskFactoryException;
-import ru.babobka.nodeslaveserver.server.ServerContext;
+import ru.babobka.nodeslaveserver.server.SlaveServerContext;
 import ru.babobka.nodeslaveserver.util.StreamUtil;
 import ru.babobka.subtask.model.SubTask;
 
@@ -39,7 +39,7 @@ public class TaskPool {
 
 	private void init() throws CanNotInitTaskFactoryException {
 		try {
-			File tasksFolder = new File(ServerContext.getInstance().getConfig().getTasksFolder());
+			File tasksFolder = new File(SlaveServerContext.getInstance().getConfig().getTasksFolder());
 			String taskFolder = tasksFolder.getAbsolutePath();
 			List<String> files = StreamUtil.getJarFileListFromFolder(taskFolder);
 			for (String file : files) {
@@ -49,8 +49,8 @@ public class TaskPool {
 					SubTask subTask = StreamUtil.getTaskClassFromJar(jarFilePath, config.getClassName());
 					tasksMap.put(config.getName(), new TaskContext(subTask, config));
 				} catch (Exception e) {
-					ServerContext.getInstance().getLogger().log(Level.SEVERE, "Can not init factory with file " + file);
-					ServerContext.getInstance().getLogger().log(e);
+					SlaveServerContext.getInstance().getLogger().log(Level.SEVERE, "Can not init factory with file " + file);
+					SlaveServerContext.getInstance().getLogger().log(e);
 					throw new CanNotInitTaskFactoryException(e);
 				}
 			}
