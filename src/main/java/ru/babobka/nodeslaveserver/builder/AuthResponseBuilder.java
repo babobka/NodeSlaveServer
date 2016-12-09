@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 import ru.babobka.nodeserials.Mappings;
 import ru.babobka.nodeserials.NodeResponse;
 import ru.babobka.nodeserials.RSA;
@@ -27,7 +29,7 @@ public class AuthResponseBuilder {
 		List<String> tasksList = new LinkedList<>();
 		tasksList.addAll(TaskPool.getInstance().getTasksMap().keySet());
 		addition.put("tasksList", (Serializable) tasksList);
-		return new NodeResponse((long) (Math.random() * Long.MAX_VALUE), 0, 0, NodeResponse.Status.NORMAL, null,
+		return new NodeResponse(UUID.randomUUID(), UUID.randomUUID(), 0, NodeResponse.Status.NORMAL, null,
 				addition, Mappings.AUTH_TASK_NAME);
 
 	}

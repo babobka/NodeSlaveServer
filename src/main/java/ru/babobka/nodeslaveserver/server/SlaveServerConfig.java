@@ -10,26 +10,19 @@ public class SlaveServerConfig {
 
 	private final int requestTimeoutMillis;
 
-	private final int reconnectionTimeoutMillis;
-
 	private final int authTimeoutMillis;
 
 	private final String loggerFolder;
 
 	private final String tasksFolder;
 
-	public SlaveServerConfig(int requestTimeoutMillis, int reconnectionTimeoutMillis, int authTimeoutMillis,
-			String loggerFolder, String tasksFolder) throws ServerConfigurationException {
+	public SlaveServerConfig(int requestTimeoutMillis, int authTimeoutMillis, String loggerFolder, String tasksFolder)
+			throws ServerConfigurationException {
 
 		if (requestTimeoutMillis <= 0) {
 			throw new ServerConfigurationException("'requestTimeoutMillis' value must be positive");
 		}
 		this.requestTimeoutMillis = requestTimeoutMillis;
-
-		if (reconnectionTimeoutMillis <= 0) {
-			throw new ServerConfigurationException("'reconnectionTimeoutMillis' value must be positive");
-		}
-		this.reconnectionTimeoutMillis = reconnectionTimeoutMillis;
 
 		if (authTimeoutMillis <= 0) {
 			throw new ServerConfigurationException("'authTimeoutMillis' value must be positive");
@@ -39,9 +32,9 @@ public class SlaveServerConfig {
 		if (loggerFolder == null) {
 			throw new ServerConfigurationException("'loggerFolder' is null");
 		} else {
-			File loggerFile = new File(loggerFolder);
-			if (!loggerFile.exists()) {
-				loggerFile.mkdirs();
+			File loggerFolderFile = new File(loggerFolder);
+			if (!loggerFolderFile.exists() && !loggerFolderFile.mkdirs()) {
+				throw new ServerConfigurationException("Can not create logger folder "+loggerFolderFile);
 			}
 		}
 
@@ -54,13 +47,10 @@ public class SlaveServerConfig {
 		}
 		this.tasksFolder = tasksFolder;
 
-
-
 	}
 
 	public SlaveServerConfig(JSONObject jsonObject) throws ServerConfigurationException {
-		this(jsonObject.getInt("requestTimeoutMillis"), jsonObject.getInt("reconnectionTimeoutMillis"),
-				jsonObject.getInt("authTimeoutMillis"),
+		this(jsonObject.getInt("requestTimeoutMillis"), jsonObject.getInt("authTimeoutMillis"),
 				jsonObject.getString("loggerFolder"), jsonObject.getString("tasksFolder"));
 
 	}
@@ -69,15 +59,9 @@ public class SlaveServerConfig {
 		return requestTimeoutMillis;
 	}
 
-	public int getReconnectionTimeoutMillis() {
-		return reconnectionTimeoutMillis;
-	}
-
 	public int getAuthTimeoutMillis() {
 		return authTimeoutMillis;
 	}
-
-
 
 	public String getLoggerFolder() {
 		return loggerFolder;
@@ -89,13 +73,8 @@ public class SlaveServerConfig {
 
 	@Override
 	public String toString() {
-		return "SlaveServerConfig [requestTimeoutMillis=" + requestTimeoutMillis + ", reconnectionTimeoutMillis="
-				+ reconnectionTimeoutMillis + ", authTimeoutMillis=" + authTimeoutMillis + ", loggerFolder="
-				+ loggerFolder + ", tasksFolder=" + tasksFolder + "]";
+		return "SlaveServerConfig [requestTimeoutMillis=" + requestTimeoutMillis + ", authTimeoutMillis="
+				+ authTimeoutMillis + ", loggerFolder=" + loggerFolder + ", tasksFolder=" + tasksFolder + "]";
 	}
-
-
-
-
 
 }

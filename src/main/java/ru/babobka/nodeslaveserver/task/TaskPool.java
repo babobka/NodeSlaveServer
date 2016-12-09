@@ -39,7 +39,7 @@ public class TaskPool {
 
 	private void init() throws CanNotInitTaskFactoryException {
 		try {
-			File tasksFolder = new File(SlaveServerContext.getInstance().getConfig().getTasksFolder());
+			File tasksFolder = new File(SlaveServerContext.getConfig().getTasksFolder());
 			String taskFolder = tasksFolder.getAbsolutePath();
 			List<String> files = StreamUtil.getJarFileListFromFolder(taskFolder);
 			for (String file : files) {

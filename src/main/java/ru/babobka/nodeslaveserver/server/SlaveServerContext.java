@@ -1,6 +1,6 @@
 package ru.babobka.nodeslaveserver.server;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.logging.Level;
 
 import ru.babobka.nodeslaveserver.builder.JSONFileServerConfigBuilder;
@@ -8,18 +8,17 @@ import ru.babobka.nodeslaveserver.log.SimpleLogger;
 
 public class SlaveServerContext {
 
-	private static String configPath;
-	
-	private final SlaveServerConfig config;
+	private static volatile SlaveServerConfig config;
 
 	private final SimpleLogger logger;
 
 	private static volatile SlaveServerContext instance;
 
-
 	private SlaveServerContext() {
 		try {
-			config = JSONFileServerConfigBuilder.build(configPath);
+			if (config == null) {
+				throw new IllegalStateException("Configuration was not specified.");
+			}
 			logger = new SimpleLogger("slave", config.getLoggerFolder(), "slave");
 			logger.log("ServerContext was successfuly created");
 			logger.log(config.toString());
@@ -42,7 +41,7 @@ public class SlaveServerContext {
 		return localInstance;
 	}
 
-	public SlaveServerConfig getConfig() {
+	public static SlaveServerConfig getConfig() {
 		return config;
 
 	}
@@ -51,22 +50,11 @@ public class SlaveServerContext {
 		return logger;
 	}
 
-	
-	public static synchronized String getConfigPath() {
-		return configPath;
-	}
-
-	public static synchronized void setConfigPath(String configPath) {
+	public static void setConfig(InputStream configFileInputStream) {
 		if (instance == null) {
-			File f = new File(configPath);
-			if (f.exists() && !f.isDirectory()) {
-				SlaveServerContext.configPath = configPath;
-			} else {
-				throw new RuntimeException("'configPath' " + configPath + " doesn't exists");
-			}
-
+			config = JSONFileServerConfigBuilder.build(configFileInputStream);
 		} else {
-			instance.logger.log(Level.WARNING, "Can not define 'configFolder' value. Context is already created.");
+			instance.logger.log(Level.WARNING, "Can not redefine configuration. Context is already created.");
 		}
 	}
 

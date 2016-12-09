@@ -15,7 +15,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.AccessController;
 import java.util.LinkedList;
+import java.security.PrivilegedAction;
 import java.util.List;
 import java.util.Scanner;
 
@@ -37,6 +39,10 @@ public class StreamUtil {
 		return clazz.getClassLoader().getResource(resourceName).getPath();
 	}
 
+	public static InputStream getLocalResource(Class<?> clazz, String resourceName) {
+		return clazz.getClassLoader().getResourceAsStream(resourceName);
+	}
+
 	public static String readFile(InputStream is) {
 
 		try (Scanner scanner = new Scanner(is); Scanner delimitedScanner = scanner.useDelimiter("\\A");) {
@@ -54,9 +60,13 @@ public class StreamUtil {
 		return readFile(is);
 	}
 
-	public static SubTask getTaskClassFromJar(String jarFilePath, String className) throws IOException {
+	public static SubTask getTaskClassFromJar(final String jarFilePath, String className) throws IOException {
 		try {
-			JarClassLoader jarLoader = new JarClassLoader(jarFilePath);
+			JarClassLoader jarLoader = AccessController.doPrivileged(new PrivilegedAction<JarClassLoader>() {
+				public JarClassLoader run() {
+					return new JarClassLoader(jarFilePath);
+				}
+			});
 			return (SubTask) (jarLoader.loadClass(className, true).newInstance());
 		} catch (Exception e) {
 			throw new IOException("Can not get " + className, e);

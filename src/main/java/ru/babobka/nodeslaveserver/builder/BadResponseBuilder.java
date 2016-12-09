@@ -1,5 +1,7 @@
 package ru.babobka.nodeslaveserver.builder;
 
+import java.util.UUID;
+
 import ru.babobka.nodeserials.NodeResponse;
 
 /**
@@ -12,7 +14,7 @@ public class BadResponseBuilder {
 		
 	}
 
-	public static NodeResponse getInstance(Long taskId, Long requestId,
+	public static NodeResponse getInstance(UUID taskId, UUID requestId,
 			String uri) {
 		return new NodeResponse(taskId, requestId, -1,
 				NodeResponse.Status.FAILED, null, null, uri);

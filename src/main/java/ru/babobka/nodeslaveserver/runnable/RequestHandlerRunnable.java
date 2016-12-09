@@ -1,9 +1,9 @@
 package ru.babobka.nodeslaveserver.runnable;
 
 import ru.babobka.nodeslaveserver.builder.BadResponseBuilder;
-import ru.babobka.nodeslaveserver.model.TasksStorage;
 import ru.babobka.nodeslaveserver.server.SlaveServerContext;
 import ru.babobka.nodeslaveserver.task.TaskRunner;
+import ru.babobka.nodeslaveserver.task.TasksStorage;
 import ru.babobka.nodeslaveserver.util.StreamUtil;
 import ru.babobka.nodeserials.NodeRequest;
 import ru.babobka.nodeserials.NodeResponse;

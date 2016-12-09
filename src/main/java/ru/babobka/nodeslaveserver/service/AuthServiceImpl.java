@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
 	public boolean auth(Socket socket, String login, String password) {
 		
 		try {
-			socket.setSoTimeout(SlaveServerContext.getInstance().getConfig().getAuthTimeoutMillis());
+			socket.setSoTimeout(SlaveServerContext.getConfig().getAuthTimeoutMillis());
 			PublicKey publicKey = (PublicKey) StreamUtil.receiveObject(socket);
 			StreamUtil.sendObject(AuthResponseBuilder.build(new RSA(null, publicKey), login, password), socket);
 			

@@ -4,11 +4,12 @@ import ru.babobka.nodeslaveserver.controller.SocketController;
 import ru.babobka.nodeslaveserver.controller.SocketControllerImpl;
 import ru.babobka.nodeslaveserver.exception.SlaveAuthFailException;
 import ru.babobka.nodeslaveserver.log.SimpleLogger;
-import ru.babobka.nodeslaveserver.model.TasksStorage;
 import ru.babobka.nodeslaveserver.runnable.GlitchRunnable;
 import ru.babobka.nodeslaveserver.service.AuthService;
 import ru.babobka.nodeslaveserver.service.AuthServiceImpl;
 import ru.babobka.nodeslaveserver.task.TaskPool;
+import ru.babobka.nodeslaveserver.task.TasksStorage;
+import ru.babobka.nodeslaveserver.util.StreamUtil;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -16,6 +17,8 @@ import java.net.Socket;
 import java.util.logging.Level;
 
 public class SlaveServer extends Thread {
+
+	public static final String SLAVE_SERVER_TEST_CONFIG = "slave_config.json";
 
 	private final AuthService authService = AuthServiceImpl.getInstance();
 
@@ -80,7 +83,7 @@ public class SlaveServer extends Thread {
 		if (glitchThread != null)
 			glitchThread.interrupt();
 		tasksStorage.stopAllTheTasks();
-		if (socket != null && !socket.isClosed()) {
+		if (socket != null) {
 			try {
 				socket.close();
 			} catch (IOException e) {
@@ -89,4 +92,8 @@ public class SlaveServer extends Thread {
 		}
 	}
 
+	public static void main(String[] args) {
+		SlaveServerContext.setConfig(StreamUtil.getLocalResource(SlaveServer.class, "slave_config.json"));
+
+	}
 }
