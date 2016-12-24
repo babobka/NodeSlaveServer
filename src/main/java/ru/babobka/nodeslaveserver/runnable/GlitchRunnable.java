@@ -2,11 +2,16 @@ package ru.babobka.nodeslaveserver.runnable;
 
 import java.io.IOException;
 import java.net.Socket;
-import ru.babobka.nodeslaveserver.server.SlaveServerContext;
+import java.util.Random;
+
+import ru.babobka.container.Container;
+import ru.babobka.nodeslaveserver.log.SimpleLogger;
 
 public class GlitchRunnable implements Runnable {
 
 	private final Socket socket;
+
+	private final SimpleLogger logger = Container.getInstance().get(SimpleLogger.class);
 
 	public GlitchRunnable(Socket socket)
 
@@ -16,19 +21,20 @@ public class GlitchRunnable implements Runnable {
 
 	@Override
 	public void run() {
+		Random random = new Random();
 		while (!Thread.currentThread().isInterrupted()) {
-			int timeToWaitSec = (int) (Math.random() * 60);
-			SlaveServerContext.getInstance().getLogger().log("Seconds to glitch " + timeToWaitSec);
+			int timeToWaitSec = random.nextInt(60);
+			logger.log("Seconds to glitch " + timeToWaitSec);
 			try {
 				Thread.sleep(timeToWaitSec * 1000L);
 				try {
-					SlaveServerContext.getInstance().getLogger().log("Closing socket in GlitchRunnable");
+					logger.log("Closing socket in GlitchRunnable");
 					socket.close();
 				} catch (IOException e) {
-					SlaveServerContext.getInstance().getLogger().log(e);
+					logger.log(e);
 				}
 			} catch (InterruptedException e) {
-				SlaveServerContext.getInstance().getLogger().log(e);
+				logger.log(e);
 				Thread.currentThread().interrupt();
 			}
 		}

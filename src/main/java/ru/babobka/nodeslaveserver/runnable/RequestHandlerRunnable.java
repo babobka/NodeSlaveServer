@@ -1,10 +1,11 @@
 package ru.babobka.nodeslaveserver.runnable;
 
 import ru.babobka.nodeslaveserver.builder.BadResponseBuilder;
-import ru.babobka.nodeslaveserver.server.SlaveServerContext;
+import ru.babobka.nodeslaveserver.log.SimpleLogger;
 import ru.babobka.nodeslaveserver.task.TaskRunner;
 import ru.babobka.nodeslaveserver.task.TasksStorage;
 import ru.babobka.nodeslaveserver.util.StreamUtil;
+import ru.babobka.container.Container;
 import ru.babobka.nodeserials.NodeRequest;
 import ru.babobka.nodeserials.NodeResponse;
 import ru.babobka.subtask.model.SubTask;
@@ -24,6 +25,8 @@ public class RequestHandlerRunnable implements Runnable {
 
 	private final SubTask subTask;
 
+	private final SimpleLogger logger = Container.getInstance().get(SimpleLogger.class);
+
 	private final TasksStorage tasksStorage;
 
 	public RequestHandlerRunnable(Socket socket, TasksStorage tasksStorage, NodeRequest request, SubTask subTask) {
@@ -39,8 +42,8 @@ public class RequestHandlerRunnable implements Runnable {
 			NodeResponse response = TaskRunner.runTask(tasksStorage, request, subTask);
 			if (!response.isStopped()) {
 				StreamUtil.sendObject(response, socket);
-				SlaveServerContext.getInstance().getLogger().log(response.toString());
-				SlaveServerContext.getInstance().getLogger().log("Response was sent");
+				logger.log(response.toString());
+				logger.log("Response was sent");
 			}
 		} catch (NullPointerException e) {
 			try {
@@ -51,8 +54,8 @@ public class RequestHandlerRunnable implements Runnable {
 			}
 
 		} catch (IOException e) {
-			SlaveServerContext.getInstance().getLogger().log(e);
-			SlaveServerContext.getInstance().getLogger().log(Level.SEVERE, "Response wasn't sent");
+			logger.log(e);
+			logger.log(Level.SEVERE, "Response wasn't sent");
 		}
 	}
 }

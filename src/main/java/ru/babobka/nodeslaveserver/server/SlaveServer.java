@@ -1,15 +1,13 @@
 package ru.babobka.nodeslaveserver.server;
 
+import ru.babobka.container.Container;
 import ru.babobka.nodeslaveserver.controller.SocketController;
 import ru.babobka.nodeslaveserver.controller.SocketControllerImpl;
 import ru.babobka.nodeslaveserver.exception.SlaveAuthFailException;
 import ru.babobka.nodeslaveserver.log.SimpleLogger;
 import ru.babobka.nodeslaveserver.runnable.GlitchRunnable;
 import ru.babobka.nodeslaveserver.service.AuthService;
-import ru.babobka.nodeslaveserver.service.AuthServiceImpl;
-import ru.babobka.nodeslaveserver.task.TaskPool;
 import ru.babobka.nodeslaveserver.task.TasksStorage;
-import ru.babobka.nodeslaveserver.util.StreamUtil;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -20,13 +18,13 @@ public class SlaveServer extends Thread {
 
 	public static final String SLAVE_SERVER_TEST_CONFIG = "slave_config.json";
 
-	private final AuthService authService = AuthServiceImpl.getInstance();
+	private final AuthService authService = Container.getInstance().get(AuthService.class);
 
 	private final Thread glitchThread;
 
 	private volatile Socket socket;
 
-	private final SimpleLogger logger;
+	private final SimpleLogger logger = Container.getInstance().get(SimpleLogger.class);
 
 	private final TasksStorage tasksStorage;
 
@@ -35,17 +33,15 @@ public class SlaveServer extends Thread {
 	}
 
 	public SlaveServer(String serverHost, int port, String login, String password, boolean glithcy) throws IOException {
-		TaskPool.getInstance();
-		this.logger = SlaveServerContext.getInstance().getLogger();
-		this.socket = new Socket(InetAddress.getByName(serverHost), port);
-		this.logger.log("Connection was successfully established");
+		socket = new Socket(InetAddress.getByName(serverHost), port);
+		logger.log("Connection was successfully established");
 		if (!authService.auth(socket, login, password)) {
 			logger.log(Level.SEVERE, "Auth fail");
 			throw new SlaveAuthFailException();
 		} else {
 			logger.log("Auth success");
 		}
-		this.tasksStorage = new TasksStorage();
+		tasksStorage = new TasksStorage();
 		if (glithcy) {
 			glitchThread = new Thread(new GlitchRunnable(socket));
 		} else {
@@ -75,6 +71,7 @@ public class SlaveServer extends Thread {
 
 	@Override
 	public void interrupt() {
+
 		super.interrupt();
 		clear();
 	}
@@ -93,7 +90,6 @@ public class SlaveServer extends Thread {
 	}
 
 	public static void main(String[] args) {
-		SlaveServerContext.setConfig(StreamUtil.getLocalResource(SlaveServer.class, "slave_config.json"));
 
 	}
 }

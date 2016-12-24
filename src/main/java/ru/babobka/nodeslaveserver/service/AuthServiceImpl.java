@@ -1,11 +1,14 @@
 package ru.babobka.nodeslaveserver.service;
 
 import ru.babobka.nodeslaveserver.builder.AuthResponseBuilder;
-import ru.babobka.nodeslaveserver.server.SlaveServerContext;
+import ru.babobka.nodeslaveserver.log.SimpleLogger;
+import ru.babobka.nodeslaveserver.server.SlaveServerConfig;
 import ru.babobka.nodeslaveserver.util.StreamUtil;
+import ru.babobka.container.Container;
 import ru.babobka.nodeserials.PublicKey;
 import ru.babobka.nodeserials.RSA;
 
+import java.io.IOException;
 import java.net.Socket;
 
 /**
@@ -13,37 +16,22 @@ import java.net.Socket;
  */
 public class AuthServiceImpl implements AuthService {
 
-	private static volatile AuthServiceImpl instance;
+	private final SimpleLogger logger = Container.getInstance().get(SimpleLogger.class);
 
-	private AuthServiceImpl() {
-
-	}
-
-	public static AuthServiceImpl getInstance() {
-		AuthServiceImpl localInstance = instance;
-		if (localInstance == null) {
-			synchronized (AuthServiceImpl.class) {
-				localInstance = instance;
-				if (localInstance == null) {
-					instance = localInstance = new AuthServiceImpl();
-				}
-			}
-		}
-		return localInstance;
-	}
+	private final SlaveServerConfig slaveServerConfig = Container.getInstance().get(SlaveServerConfig.class);
 
 	@Override
 	public boolean auth(Socket socket, String login, String password) {
-		
+
 		try {
-			socket.setSoTimeout(SlaveServerContext.getConfig().getAuthTimeoutMillis());
+			socket.setSoTimeout(slaveServerConfig.getAuthTimeoutMillis());
 			PublicKey publicKey = (PublicKey) StreamUtil.receiveObject(socket);
 			StreamUtil.sendObject(AuthResponseBuilder.build(new RSA(null, publicKey), login, password), socket);
-			
+
 			return (Boolean) StreamUtil.receiveObject(socket);
-		} catch (Exception e) {
-			SlaveServerContext.getInstance().getLogger().log(e);
+		} catch (IOException e) {
+			logger.log(e);
 			return false;
-		} 
+		}
 	}
 }

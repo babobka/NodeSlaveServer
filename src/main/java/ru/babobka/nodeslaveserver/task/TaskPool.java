@@ -7,8 +7,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
+import ru.babobka.container.Container;
 import ru.babobka.nodeslaveserver.exception.CanNotInitTaskFactoryException;
-import ru.babobka.nodeslaveserver.server.SlaveServerContext;
+import ru.babobka.nodeslaveserver.log.SimpleLogger;
+import ru.babobka.nodeslaveserver.server.SlaveServerConfig;
 import ru.babobka.nodeslaveserver.util.StreamUtil;
 import ru.babobka.subtask.model.SubTask;
 
@@ -16,30 +18,20 @@ import ru.babobka.subtask.model.SubTask;
  * Created by dolgopolov.a on 09.07.15.
  */
 public class TaskPool {
+
 	private final Map<String, TaskContext> tasksMap = new ConcurrentHashMap<>();
 
-	private static volatile TaskPool instance;
+	private final SimpleLogger logger = Container.getInstance().get(SimpleLogger.class);
 
-	private TaskPool() throws CanNotInitTaskFactoryException {
+	private final SlaveServerConfig slaveServerConfig = Container.getInstance().get(SlaveServerConfig.class);
+
+	public TaskPool() throws CanNotInitTaskFactoryException {
 		init();
-	}
-
-	public static TaskPool getInstance() {
-		TaskPool localInstance = instance;
-		if (localInstance == null) {
-			synchronized (TaskPool.class) {
-				localInstance = instance;
-				if (localInstance == null) {
-					instance = localInstance = new TaskPool();
-				}
-			}
-		}
-		return localInstance;
 	}
 
 	private void init() throws CanNotInitTaskFactoryException {
 		try {
-			File tasksFolder = new File(SlaveServerContext.getConfig().getTasksFolder());
+			File tasksFolder = new File(slaveServerConfig.getTasksFolder());
 			String taskFolder = tasksFolder.getAbsolutePath();
 			List<String> files = StreamUtil.getJarFileListFromFolder(taskFolder);
 			for (String file : files) {
@@ -49,13 +41,13 @@ public class TaskPool {
 					SubTask subTask = StreamUtil.getTaskClassFromJar(jarFilePath, config.getClassName());
 					tasksMap.put(config.getName(), new TaskContext(subTask, config));
 				} catch (Exception e) {
-					SlaveServerContext.getInstance().getLogger().log(Level.SEVERE, "Can not init factory with file " + file);
-					SlaveServerContext.getInstance().getLogger().log(e);
+					logger.log(Level.SEVERE, "Can not init factory with file " + file);
+					logger.log(e);
 					throw new CanNotInitTaskFactoryException(e);
 				}
 			}
 
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			throw new CanNotInitTaskFactoryException(
 					"Can not init factory pool. Try to redownload new jars to node-slave-server task folder", e);
 		}
@@ -80,7 +72,6 @@ public class TaskPool {
 		}
 
 	}
-
 
 	public boolean isEmpty() {
 		return tasksMap.isEmpty();
