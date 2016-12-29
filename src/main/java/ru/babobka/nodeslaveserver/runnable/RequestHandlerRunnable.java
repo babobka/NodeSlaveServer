@@ -1,7 +1,7 @@
 package ru.babobka.nodeslaveserver.runnable;
 
 import ru.babobka.nodeslaveserver.builder.BadResponseBuilder;
-import ru.babobka.nodeslaveserver.log.SimpleLogger;
+import ru.babobka.nodeslaveserver.logger.SimpleLogger;
 import ru.babobka.nodeslaveserver.task.TaskRunner;
 import ru.babobka.nodeslaveserver.task.TasksStorage;
 import ru.babobka.nodeslaveserver.util.StreamUtil;

@@ -8,7 +8,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 
 import ru.babobka.nodeslaveserver.builder.HeartBeatingResponseBuilder;
-import ru.babobka.nodeslaveserver.log.SimpleLogger;
+import ru.babobka.nodeslaveserver.logger.SimpleLogger;
 import ru.babobka.nodeslaveserver.runnable.RequestHandlerRunnable;
 import ru.babobka.nodeslaveserver.server.SlaveServerConfig;
 import ru.babobka.nodeslaveserver.task.TaskPool;
@@ -37,7 +37,7 @@ public class SocketControllerImpl implements SocketController {
 	@Override
 	public void control(Socket socket) throws IOException {
 		socket.setSoTimeout(slaveServerConfig.getRequestTimeoutMillis());
-		NodeRequest request = (NodeRequest) StreamUtil.receiveObject(socket);
+		NodeRequest request =StreamUtil.receiveObject(socket);
 		if (request.isHeartBeatingRequest()) {
 			StreamUtil.sendObject(HeartBeatingResponseBuilder.build(), socket);
 		} else if (request.isStoppingRequest()) {

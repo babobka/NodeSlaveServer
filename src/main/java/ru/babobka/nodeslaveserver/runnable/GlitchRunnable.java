@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.Random;
 
 import ru.babobka.container.Container;
-import ru.babobka.nodeslaveserver.log.SimpleLogger;
+import ru.babobka.nodeslaveserver.logger.SimpleLogger;
 
 public class GlitchRunnable implements Runnable {
 

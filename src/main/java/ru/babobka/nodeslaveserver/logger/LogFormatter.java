@@ -1,4 +1,6 @@
-package ru.babobka.nodeslaveserver.log;
+package ru.babobka.nodeslaveserver.logger;
+
+import java.io.IOException;
 
 /**
  * Created by dolgopolov.a on 12.01.16.
@@ -22,14 +24,14 @@ final class LogFormatter extends Formatter {
 				.append(formatMessage(record)).append(LINE_SEPARATOR);
 
 		if (record.getThrown() != null) {
-			try { 
-				StringWriter sw = new StringWriter();
-				PrintWriter pw = new PrintWriter(sw);
+
+			try (StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw);) {
+
 				record.getThrown().printStackTrace(pw);
 				pw.close();
 				sb.append(sw.toString());
-			} catch (Exception ex) {
-				ex.printStackTrace();
+			} catch (IOException e) {
+				throw new IllegalStateException("Can not init logger " + e);
 			}
 		}
 

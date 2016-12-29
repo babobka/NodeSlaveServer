@@ -1,4 +1,4 @@
-package ru.babobka.nodeslaveserver.log;
+package ru.babobka.nodeslaveserver.logger;
 
 import java.io.IOException;
 import java.io.PrintWriter;

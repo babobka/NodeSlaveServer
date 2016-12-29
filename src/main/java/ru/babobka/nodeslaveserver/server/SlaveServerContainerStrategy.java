@@ -6,7 +6,7 @@ import ru.babobka.container.Container;
 import ru.babobka.container.ContainerStrategy;
 import ru.babobka.container.ContainerStrategyException;
 import ru.babobka.nodeslaveserver.builder.JSONFileServerConfigBuilder;
-import ru.babobka.nodeslaveserver.log.SimpleLogger;
+import ru.babobka.nodeslaveserver.logger.SimpleLogger;
 import ru.babobka.nodeslaveserver.service.AuthServiceImpl;
 import ru.babobka.nodeslaveserver.task.TaskPool;
 

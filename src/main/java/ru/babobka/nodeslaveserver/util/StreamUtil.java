@@ -112,23 +112,24 @@ public class StreamUtil {
 	}
 
 	public static void sendObject(Object object, Socket socket) throws IOException {
-		synchronized (socket) {
+	
 			byte[] message = objectToByteArray(object);
 			DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
 			dOut.writeInt(message.length); // write length of the message
 			dOut.write(message);
 			socket.getOutputStream().flush();
-		}
+		
 	}
 
-	public static Object receiveObject(Socket socket) throws IOException {
+	@SuppressWarnings("unchecked")
+	public static <T> T receiveObject(Socket socket) throws IOException {
 
 		DataInputStream dIn = new DataInputStream(socket.getInputStream());
 		int length = dIn.readInt();
 		if (length > 0) {
 			byte[] message = new byte[length];
 			dIn.readFully(message, 0, message.length);
-			return byteArrayToObject(message);
+			return (T) byteArrayToObject(message);
 		}
 		return null;
 

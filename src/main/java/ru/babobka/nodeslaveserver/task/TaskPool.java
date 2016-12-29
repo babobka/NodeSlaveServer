@@ -9,7 +9,7 @@ import java.util.logging.Level;
 
 import ru.babobka.container.Container;
 import ru.babobka.nodeslaveserver.exception.CanNotInitTaskFactoryException;
-import ru.babobka.nodeslaveserver.log.SimpleLogger;
+import ru.babobka.nodeslaveserver.logger.SimpleLogger;
 import ru.babobka.nodeslaveserver.server.SlaveServerConfig;
 import ru.babobka.nodeslaveserver.util.StreamUtil;
 import ru.babobka.subtask.model.SubTask;
